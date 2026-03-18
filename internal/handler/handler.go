@@ -20,9 +20,7 @@ func New(cfg *config.C, dataDir string) *Handler {
 // Register 将 API 路由注册到 gin 引擎（可选前缀 /{project_path}）
 func (h *Handler) Register(r *gin.Engine) {
 	var g gin.IRoutes = r
-	if p := h.Cfg.HTTPRoutePrefix(); p != "" {
-		g = r.Group(p)
-	}
+	g = r.Group("/translate-agent")
 	g.POST("/api/translate/stream", h.StreamTranslate)
 	g.GET("/api/models", h.GetModels)
 	g.POST("/api/settings", h.SaveSettings)
