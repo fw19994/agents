@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Env 当前环境名
@@ -18,11 +19,13 @@ type Provider struct {
 
 // C 当前环境配置
 type C struct {
-	OpenAIAPIKey string              `json:"openai_api_key"` // 兼容旧配置，无 providers 时使用
-	LLMBaseURL   string              `json:"llm_base_url"`
-	Addr         string              `json:"addr"`
-	DataDir      string              `json:"data_dir"`
-	Providers    map[string]Provider `json:"providers"` // 多供应商：名称 -> 配置
+	OpenAIAPIKey string `json:"openai_api_key"` // 兼容旧配置，无 providers 时使用
+	LLMBaseURL   string `json:"llm_base_url"`
+	Addr         string `json:"addr"`
+	DataDir      string `json:"data_dir"`
+	// ProjectPath 路由前缀（项目名），如 translate-agent → /translate-agent/api/... ；空则仍挂在根路径
+	ProjectPath string              `json:"project_path"`
+	Providers   map[string]Provider `json:"providers"` // 多供应商：名称 -> 配置
 }
 
 // configFile 结构：按环境名取配置
@@ -69,7 +72,20 @@ func Load() (C, error) {
 	if c.LLMBaseURL == "" {
 		c.LLMBaseURL = "https://api.openai.com/v1"
 	}
+	if v := strings.TrimSpace(os.Getenv("PROJECT_PATH")); v != "" {
+		c.ProjectPath = v
+	}
 	return c, nil
+}
+
+// HTTPRoutePrefix 返回 Gin 路由前缀，如 "/translate-agent"；空表示根路径
+func (c *C) HTTPRoutePrefix() string {
+	s := strings.TrimSpace(c.ProjectPath)
+	s = strings.Trim(s, "/")
+	if s == "" {
+		return ""
+	}
+	return "/" + s
 }
 
 // GetProviderForModel 根据模型 ID 返回该模型所属供应商的 api_key 和 base_url。

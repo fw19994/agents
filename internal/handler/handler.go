@@ -17,16 +17,19 @@ func New(cfg *config.C, dataDir string) *Handler {
 	return &Handler{Cfg: cfg, DataDir: dataDir}
 }
 
-// Register 将 API 路由注册到 gin 引擎
+// Register 将 API 路由注册到 gin 引擎（可选前缀 /{project_path}）
 func (h *Handler) Register(r *gin.Engine) {
-	r.POST("/api/translate/stream", h.StreamTranslate)
-	r.GET("/api/models", h.GetModels)
-	r.POST("/api/settings", h.SaveSettings)
-	r.GET("/api/evaluate/cases", h.GetEvaluateCases)
-	r.POST("/api/evaluate/run", h.RunEvaluate)
-	// 会话管理
-	r.POST("/api/sessions", h.CreateSession)
-	r.GET("/api/sessions", h.ListSessions)
-	r.GET("/api/sessions/:id", h.GetSessionDetail)
-	r.DELETE("/api/sessions/:id", h.DeleteSession)
+	var g gin.IRoutes = r
+	if p := h.Cfg.HTTPRoutePrefix(); p != "" {
+		g = r.Group(p)
+	}
+	g.POST("/api/translate/stream", h.StreamTranslate)
+	g.GET("/api/models", h.GetModels)
+	g.POST("/api/settings", h.SaveSettings)
+	g.GET("/api/evaluate/cases", h.GetEvaluateCases)
+	g.POST("/api/evaluate/run", h.RunEvaluate)
+	g.POST("/api/sessions", h.CreateSession)
+	g.GET("/api/sessions", h.ListSessions)
+	g.GET("/api/sessions/:id", h.GetSessionDetail)
+	g.DELETE("/api/sessions/:id", h.DeleteSession)
 }

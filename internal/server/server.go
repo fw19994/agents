@@ -23,15 +23,26 @@ func CORS(r *gin.Engine) {
 	})
 }
 
-// Static 注册静态资源与页面路由
-func Static(r *gin.Engine) {
-	r.StaticFile("/", "./static/index.html")
-	r.StaticFile("/index.html", "./static/index.html")
-	r.Static("/css", "./static/css")
-	r.Static("/js", "./static/js")
-	r.StaticFile("/home.html", "./static/home.html")
-	r.StaticFile("/settings.html", "./static/settings.html")
-	r.StaticFile("/evaluate.html", "./static/evaluate.html")
+// Static 注册静态资源与页面路由。prefix 非空时资源挂在 /{prefix}/ 下（与 API 一致）。
+func Static(r *gin.Engine, prefix string) {
+	if prefix == "" {
+		r.StaticFile("/", "./static/index.html")
+		r.StaticFile("/index.html", "./static/index.html")
+		r.Static("/css", "./static/css")
+		r.Static("/js", "./static/js")
+		r.StaticFile("/home.html", "./static/home.html")
+		r.StaticFile("/settings.html", "./static/settings.html")
+		r.StaticFile("/evaluate.html", "./static/evaluate.html")
+		return
+	}
+	g := r.Group(prefix)
+	g.StaticFile("/", "./static/index.html")
+	g.StaticFile("/index.html", "./static/index.html")
+	g.Static("/css", "./static/css")
+	g.Static("/js", "./static/js")
+	g.StaticFile("/home.html", "./static/home.html")
+	g.StaticFile("/settings.html", "./static/settings.html")
+	g.StaticFile("/evaluate.html", "./static/evaluate.html")
 }
 
 // Listen 在 addr 上监听并服务，绑定失败时输出友好提示

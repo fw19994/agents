@@ -31,6 +31,7 @@ API Key 与运行参数放在配置文件中，通过 **环境名** 区分：
    ```json
    {
      "dev": {
+       "project_path": "translate-agent",
        "openai_api_key": "sk-xxx",
        "llm_base_url": "https://api.openai.com/v1",
        "addr": ":8080",
@@ -50,7 +51,7 @@ API Key 与运行参数放在配置文件中，通过 **环境名** 区分：
      }
    }
    ```
-   前端选择某模型（如 `qwen-plus`）时，后端会根据 `providers` 中该模型所属供应商使用对应的 `api_key` 和 `base_url`。`/api/models` 会返回各 provider 下 `models` 的并集。
+   配置了 `project_path`（如 `translate-agent`）时，**API 与静态页**均挂在 `/{project_path}/` 下，例如 `http://localhost:8080/translate-agent/api/models`。`project_path` 留空或删除则仍为根路径 `/api/...`。也可用环境变量 `PROJECT_PATH` 覆盖配置。
 
 3. 通过环境变量选择使用哪套配置：
    - `APP_ENV=dev`（默认）：使用 `dev` 段
@@ -68,15 +69,31 @@ cp config/config.example.json config/config.json
 APP_ENV=dev go run ./cmd/server
 ```
 
-浏览器访问：**http://localhost:8080**
+浏览器访问（示例 `project_path` 为 `translate-agent`）：
+
+- **http://localhost:8080/** → 302 到 **http://localhost:8080/translate-agent/home.html**
+- 对话页：**http://localhost:8080/translate-agent/home.html**
+
+若未配置 `project_path`，入口仍为 **`/` → `home.html`**，API 为 **`/api/...`**。
 
 若提示 **端口已被占用**，可任选其一：
 - 修改 `config/config.json` 中当前环境的 `addr`（如 `":8081"`）；
 - 或启动时设置环境变量：`ADDR=:8081 go run ./cmd/server`。
 
-- 入口：`/`（会跳转到对话页）
-- 对话：`/home.html`（含模型选择与 Temperature、Max Tokens 参数）
-- Agent 评测：`/evaluate.html`
+**file:// 打开本地 HTML 时**：请在页面中加 `<meta name="app-base" content="/你的project_path">`（与 `project_path` 一致），或一条 `<meta name="api-root" content="http://127.0.0.1:8080/你的project_path">`。
+
+### 生产环境域名
+
+线上服务域名为 **`api.shoppingfw.cn`**（建议使用 **HTTPS**）。与 `project_path` 组合示例（以 `translate-agent` 为例）：
+
+| 用途 | URL 示例 |
+|------|----------|
+| 根路径跳转 | `https://api.shoppingfw.cn/` →（若配置了前缀）跳转到对话页 |
+| 对话页 | `https://api.shoppingfw.cn/translate-agent/home.html` |
+| 模型列表 API | `https://api.shoppingfw.cn/translate-agent/api/models` |
+| 流式翻译 API | `POST https://api.shoppingfw.cn/translate-agent/api/translate/stream` |
+
+若生产环境 **`project_path` 为空**，则路径中无 `/translate-agent` 段，例如 `https://api.shoppingfw.cn/home.html`、`https://api.shoppingfw.cn/api/models`。以实际 `config.json` 中 `prod.project_path` 为准。
 
 ### 配置项与兜底
 
@@ -87,6 +104,7 @@ APP_ENV=dev go run ./cmd/server
 | `addr` | 服务监听地址，默认 `:8080` |
 | `data_dir` | 数据目录根路径，历史与配置写入其下 `data/` |
 | `providers` | 多供应商：`"供应商名": { "api_key", "base_url", "models": ["模型id"] }`，请求时按模型 ID 自动选供应商 |
+| `project_path` | 路由前缀（项目名），如 `translate-agent`；空则 API/页面在根路径。可用环境变量 `PROJECT_PATH` 覆盖 |
 
 若未建 `config/config.json` 或某模型未在任一 provider 的 `models` 中配置 Key，程序会从环境变量 `OPENAI_API_KEY` / `API_KEY` 读取 Key 作为兜底。
 

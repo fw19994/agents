@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"translate-agent/internal/config"
@@ -21,11 +22,17 @@ func main() {
 		addr = v
 	}
 	dataDir := cfg.DataDir
-	log.Printf("env=%s addr=%s data_dir=%s providers=%d", config.Env, addr, dataDir, len(cfg.Providers))
+	prefix := cfg.HTTPRoutePrefix()
+	log.Printf("env=%s addr=%s data_dir=%s providers=%d project_path=%q", config.Env, addr, dataDir, len(cfg.Providers), prefix)
 
 	r := gin.Default()
 	server.CORS(r)
-	server.Static(r)
+	if prefix != "" {
+		r.GET("/", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, prefix+"/home.html")
+		})
+	}
+	server.Static(r, prefix)
 	handler.New(&cfg, dataDir).Register(r)
 
 	if err := server.Listen(addr, r); err != nil {

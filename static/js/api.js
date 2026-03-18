@@ -1,8 +1,8 @@
 /**
- * 与 Go 后端的 API 封装（流式对话、设置、评测）
+ * 与 Go 后端的 API 封装（流式对话、设置、会话等）
  */
-// 与后端同源时留空；file:// 打开时自动指向本地服务
-// 覆盖方式：页面内 <meta name="api-base" content="http://127.0.0.1:8081"> 或脚本前设置 window.API_BASE
+// file:// 打开时：api-base 填服务根，如 http://127.0.0.1:8080；app-base 填 project_path，如 /translate-agent
+// 或一条 api-root：http://127.0.0.1:8080/translate-agent
 (function () {
   if (window.API_BASE != null) return;
   var meta = document.querySelector('meta[name="api-base"]');
@@ -16,7 +16,35 @@
     window.API_BASE = '';
   }
 })();
+
+(function () {
+  if (window.__API_ROOT__ != null) return;
+  var rootMeta = document.querySelector('meta[name="api-root"]');
+  if (rootMeta && rootMeta.getAttribute('content')) {
+    window.__API_ROOT__ = rootMeta.getAttribute('content').replace(/\/$/, '');
+    return;
+  }
+  var appBase = '';
+  var appMeta = document.querySelector('meta[name="app-base"]');
+  if (appMeta && appMeta.getAttribute('content')) {
+    var v = appMeta.getAttribute('content').trim();
+    if (v && v !== '/') appBase = v.replace(/\/$/, '');
+  } else if (window.location.protocol !== 'file:') {
+    var path = window.location.pathname || '';
+    var m = path.match(/^(\/.+)\/(?:home|index|settings|evaluate)\.html$/i);
+    if (m) appBase = m[1];
+  }
+  var host = window.API_BASE != null ? window.API_BASE : '';
+  window.__API_ROOT__ = (host + appBase).replace(/\/$/, '') || '';
+})();
+
 const API_BASE = window.API_BASE != null ? window.API_BASE : '';
+
+function apiUrl(path) {
+  var p = path.startsWith('/') ? path : '/' + path;
+  var root = window.__API_ROOT__ || '';
+  return root + p;
+}
 
 function getConfig() {
   return {
@@ -32,13 +60,6 @@ function setConfig(config) {
   if (config.maxTokens != null) localStorage.setItem('translate_max_tokens', String(config.maxTokens));
 }
 
-/**
- * 流式翻译
- * @param {string} direction - 'product_to_dev' | 'dev_to_product'
- * @param {string} content - 用户输入
- * @param {string} [sessionId] - 可选，当前会话 ID；空则服务端创建新会话并在流结束时通过 onSessionId 回传
- * @param {object} callbacks - onChunk, onDone, onError, onSessionId(sessionId)
- */
 async function streamTranslate(direction, content, sessionId, callbacks) {
   var onChunk = callbacks.onChunk;
   var onDone = callbacks.onDone;
@@ -46,7 +67,7 @@ async function streamTranslate(direction, content, sessionId, callbacks) {
   var onSessionId = callbacks.onSessionId;
   const cfg = getConfig();
   try {
-    const res = await fetch(API_BASE + '/api/translate/stream', {
+    const res = await fetch(apiUrl('/api/translate/stream'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -98,22 +119,16 @@ async function streamTranslate(direction, content, sessionId, callbacks) {
   }
 }
 
-/**
- * 获取模型列表（可选，用于设置页）
- */
 async function fetchModels() {
-  const res = await fetch(API_BASE + '/api/models');
+  const res = await fetch(apiUrl('/api/models'));
   if (!res.ok) return [];
   const data = await res.json();
   return data.models || [];
 }
 
-/**
- * 保存设置
- */
 async function saveSettings(settings) {
   setConfig(settings);
-  const res = await fetch(API_BASE + '/api/settings', {
+  const res = await fetch(apiUrl('/api/settings'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(settings),
@@ -121,12 +136,8 @@ async function saveSettings(settings) {
   return res.ok;
 }
 
-/**
- * 运行 Agent 评测
- * @param {string[]} caseIds - 用例 id 列表，空则全部
- */
 async function runEvaluation(caseIds = []) {
-  const res = await fetch(API_BASE + '/api/evaluate/run', {
+  const res = await fetch(apiUrl('/api/evaluate/run'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ case_ids: caseIds }),
@@ -135,41 +146,34 @@ async function runEvaluation(caseIds = []) {
   return res.json();
 }
 
-/**
- * 获取评测用例列表
- */
 async function fetchEvaluationCases() {
-  const res = await fetch(API_BASE + '/api/evaluate/cases');
+  const res = await fetch(apiUrl('/api/evaluate/cases'));
   if (!res.ok) return [];
   const data = await res.json();
   return data.cases || [];
 }
 
-/** 会话列表 */
 async function listSessions(limit) {
-  const res = await fetch(API_BASE + '/api/sessions' + (limit ? '?limit=' + limit : ''));
+  const res = await fetch(apiUrl('/api/sessions') + (limit ? '?limit=' + limit : ''));
   if (!res.ok) return [];
   const data = await res.json();
   return data.sessions || [];
 }
 
-/** 会话详情（含消息历史） */
 async function getSessionDetail(id) {
-  const res = await fetch(API_BASE + '/api/sessions/' + encodeURIComponent(id));
+  const res = await fetch(apiUrl('/api/sessions/' + encodeURIComponent(id)));
   if (!res.ok) return null;
   return res.json();
 }
 
-/** 新建会话 */
 async function createSession() {
-  const res = await fetch(API_BASE + '/api/sessions', { method: 'POST' });
+  const res = await fetch(apiUrl('/api/sessions'), { method: 'POST' });
   if (!res.ok) return null;
   const data = await res.json();
   return data.id || null;
 }
 
-/** 删除会话 */
 async function deleteSession(id) {
-  const res = await fetch(API_BASE + '/api/sessions/' + encodeURIComponent(id), { method: 'DELETE' });
+  const res = await fetch(apiUrl('/api/sessions/' + encodeURIComponent(id)), { method: 'DELETE' });
   return res.ok;
 }
