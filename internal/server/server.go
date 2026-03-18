@@ -25,17 +25,8 @@ func CORS(r *gin.Engine) {
 
 // Static 注册静态资源与页面路由。prefix 非空时资源挂在 /{prefix}/ 下（与 API 一致）。
 func Static(r *gin.Engine, prefix string) {
-	if prefix == "" {
-		r.StaticFile("/", "./static/index.html")
-		r.StaticFile("/index.html", "./static/index.html")
-		r.Static("/css", "./static/css")
-		r.Static("/js", "./static/js")
-		r.StaticFile("/home.html", "./static/home.html")
-		r.StaticFile("/settings.html", "./static/settings.html")
-		r.StaticFile("/evaluate.html", "./static/evaluate.html")
-		return
-	}
-	g := r.Group(prefix)
+
+	g := r.Group("/translate-agent")
 	g.StaticFile("/", "./static/index.html")
 	g.StaticFile("/index.html", "./static/index.html")
 	g.Static("/css", "./static/css")
