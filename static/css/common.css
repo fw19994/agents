@@ -1,0 +1,170 @@
+/* 可滚动区域隐藏滚动条，保持真实感 */
+.scroll-hide {
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 界面最大宽度，模拟真实网页 */
+.app-container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 圆角卡片统一 */
+.card-rounded {
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.cursor-blink {
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* 助手 Markdown 正文排版 */
+.md-body {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #1e293b;
+  word-break: break-word;
+}
+.md-body > *:first-child {
+  margin-top: 0 !important;
+}
+.md-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+.md-body h1,
+.md-body h2,
+.md-body h3,
+.md-body h4 {
+  font-weight: 600;
+  color: #0f172a;
+  margin-top: 1.15em;
+  margin-bottom: 0.45em;
+  line-height: 1.35;
+}
+.md-body h1:first-child,
+.md-body h2:first-child,
+.md-body h3:first-child {
+  margin-top: 0;
+}
+.md-body h2 {
+  font-size: 1.05rem;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid #e2e8f0;
+}
+.md-body h3 {
+  font-size: 0.98rem;
+  color: #334155;
+}
+.md-body p {
+  margin: 0.55em 0;
+}
+.md-body ul,
+.md-body ol {
+  margin: 0.5em 0;
+  padding-left: 1.35em;
+}
+.md-body li {
+  margin: 0.3em 0;
+}
+.md-body li::marker {
+  color: #6366f1;
+}
+.md-body ul li {
+  list-style-type: disc;
+}
+.md-body ol li {
+  list-style-type: decimal;
+}
+.md-body strong,
+.md-body b {
+  color: #0f172a;
+  font-weight: 600;
+}
+.md-body code {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e8eef4 100%);
+  padding: 0.12em 0.4em;
+  border-radius: 0.35rem;
+  font-size: 0.86em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  border: 1px solid #e2e8f0;
+}
+.md-body pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem 1.1rem;
+  border-radius: 0.65rem;
+  overflow-x: auto;
+  margin: 0.85em 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  border: 1px solid #1e293b;
+}
+.md-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+.md-body blockquote {
+  margin: 0.65em 0;
+  padding: 0.5em 0 0.5em 1em;
+  border-left: 4px solid #818cf8;
+  background: #f8fafc;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #475569;
+}
+.md-body blockquote p {
+  margin: 0.25em 0;
+}
+.md-body hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+  margin: 1.25em 0;
+}
+.md-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.85em 0;
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+.md-body th,
+.md-body td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+.md-body th {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 600;
+  color: #334155;
+}
+.md-body tr:nth-child(even) td {
+  background: #fafbfc;
+}
+.md-body a {
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-body a:hover {
+  color: #4338ca;
+}
+.md-fallback {
+  margin: 0;
+  white-space: pre-wrap;
+}

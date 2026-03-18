@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>对话 - 职能沟通翻译助手</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/common.css" />
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+    <div class="app-container px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+      <a href="home.html" class="flex items-center gap-2 text-slate-800 font-semibold">
+        <i class="fas fa-language text-indigo-600 text-xl"></i>
+        <span>职能沟通翻译助手</span>
+      </a>
+      <nav class="flex items-center gap-6">
+        <a href="home.html" class="text-indigo-600 font-medium">对话</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-1 flex app-container px-4 py-4 gap-4 max-h-[calc(100vh-8rem)] min-h-0">
+    <!-- 左侧：会话列表 -->
+    <aside class="w-56 flex-shrink-0 flex flex-col bg-white rounded-2xl card-rounded border border-slate-100 overflow-hidden">
+      <div class="p-3 border-b border-slate-100 flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-700">会话</span>
+        <button type="button" id="btn-new-session" class="text-indigo-600 hover:text-indigo-700 text-sm" title="新建会话">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div id="session-list" class="flex-1 overflow-y-auto scroll-hide p-2 space-y-1">
+        <!-- 动态填充 -->
+      </div>
+    </aside>
+    <!-- 右侧：对话区 -->
+    <div class="flex-1 flex flex-col min-w-0">
+    <!-- 工具栏：翻译方向 + 模型与参数 -->
+    <div class="flex flex-wrap items-center gap-4 mb-4">
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-600 text-sm font-medium">翻译方向</span>
+          <div class="flex rounded-xl overflow-hidden border border-slate-200 bg-white">
+            <button type="button" id="dir-product-to-dev" class="dir-btn px-4 py-2 text-sm font-medium bg-indigo-600 text-white">
+              产品 → 开发
+            </button>
+            <button type="button" id="dir-dev-to-product" class="dir-btn px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+              开发 → 产品
+            </button>
+            <button type="button" id="dir-ops-to-product" class="dir-btn px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+              运营 → 产品
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 max-w-md">切换方向将<strong class="text-slate-500">新建会话</strong>；历史会话仍在左侧列表，可点开继续。</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-slate-600 text-sm font-medium">模型</span>
+        <select id="model-select" class="rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-slate-600 text-sm font-medium">Temperature</span>
+        <input type="range" id="param-temperature" min="0" max="200" value="70" class="w-24 h-2 rounded-lg accent-indigo-600" title="0–2" />
+        <span id="param-temperature-value" class="text-slate-600 text-sm w-8">0.7</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-slate-600 text-sm font-medium">Max Tokens</span>
+        <input type="number" id="param-max-tokens" min="256" max="8192" step="256" value="2048" class="w-24 rounded-lg border border-slate-200 px-2 py-1.5 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500" />
+      </div>
+    </div>
+
+    <!-- 对话区域：可滚动、无滚动条 -->
+    <div id="chat-container" class="flex-1 min-h-0 bg-white rounded-2xl card-rounded border border-slate-100 flex flex-col overflow-hidden">
+      <div id="messages" class="flex-1 overflow-y-auto scroll-hide p-4 space-y-4">
+        <!-- 欢迎条 -->
+        <div id="welcome" class="text-center py-8 text-slate-500 text-sm">
+          <i class="fas fa-comment-dots text-4xl mb-3 block text-slate-300"></i>
+          <p>选择翻译方向后，在下方输入内容并发送，将得到对应翻译结果。</p>
+          <p class="mt-1">支持多轮对话，可随时切换方向。</p>
+        </div>
+      </div>
+
+      <!-- 输入区 -->
+      <div class="border-t border-slate-100 p-4 bg-slate-50/50">
+        <div class="flex gap-3">
+          <textarea
+            id="user-input"
+            rows="2"
+            placeholder="输入需求或技术描述…"
+            class="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+          ></textarea>
+          <button type="button" id="btn-send" class="self-end rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" title="发送">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        <p class="mt-2 text-xs text-slate-400">按 Enter 发送，Shift+Enter 换行</p>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/sessions.js"></script>
+  <script src="js/md-render.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>
