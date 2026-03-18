@@ -34,7 +34,7 @@ API Key 与运行参数放在配置文件中，通过 **环境名** 区分：
        "project_path": "translate-agent",
        "openai_api_key": "sk-xxx",
        "llm_base_url": "https://api.openai.com/v1",
-       "addr": ":8080",
+       "addr": ":9001",
        "data_dir": ".",
        "providers": {
          "openai": {
@@ -51,7 +51,7 @@ API Key 与运行参数放在配置文件中，通过 **环境名** 区分：
      }
    }
    ```
-   配置了 `project_path`（如 `translate-agent`）时，**API 与静态页**均挂在 `/{project_path}/` 下，例如 `http://localhost:8080/translate-agent/api/models`。`project_path` 留空或删除则仍为根路径 `/api/...`。也可用环境变量 `PROJECT_PATH` 覆盖配置。
+   配置了 `project_path`（如 `translate-agent`）时，**API 与静态页**均挂在 `/{project_path}/` 下，例如 `http://localhost:9001/translate-agent/api/models`。`project_path` 留空或删除则仍为根路径 `/api/...`。也可用环境变量 `PROJECT_PATH` 覆盖配置。
 
 3. 通过环境变量选择使用哪套配置：
    - `APP_ENV=dev`（默认）：使用 `dev` 段
@@ -71,16 +71,16 @@ APP_ENV=dev go run ./cmd/server
 
 浏览器访问（示例 `project_path` 为 `translate-agent`）：
 
-- **http://localhost:8080/** → 302 到 **http://localhost:8080/translate-agent/home.html**
-- 对话页：**http://localhost:8080/translate-agent/home.html**
+- **http://localhost:9001/** → 302 到 **http://localhost:9001/translate-agent/home.html**
+- 对话页：**http://localhost:9001/translate-agent/home.html**
 
 若未配置 `project_path`，入口仍为 **`/` → `home.html`**，API 为 **`/api/...`**。
 
 若提示 **端口已被占用**，可任选其一：
-- 修改 `config/config.json` 中当前环境的 `addr`（如 `":8081"`）；
-- 或启动时设置环境变量：`ADDR=:8081 go run ./cmd/server`。
+- 修改 `config/config.json` 中当前环境的 `addr`（如 `":9002"`）；
+- 或启动时设置环境变量：`ADDR=:9002 go run ./cmd/server`。
 
-**file:// 打开本地 HTML 时**：请在页面中加 `<meta name="app-base" content="/你的project_path">`（与 `project_path` 一致），或一条 `<meta name="api-root" content="http://127.0.0.1:8080/你的project_path">`。
+**file:// 打开本地 HTML 时**：请在页面中加 `<meta name="app-base" content="/你的project_path">`（与 `project_path` 一致），或一条 `<meta name="api-root" content="http://127.0.0.1:9001/你的project_path">`。
 
 ### 生产环境域名
 
@@ -101,7 +101,7 @@ APP_ENV=dev go run ./cmd/server
 |-----------------------|------|
 | `openai_api_key` | 单供应商时的 API Key；多供应商时可作为未匹配模型时的兜底 |
 | `llm_base_url` | 单供应商时的 API 根地址 |
-| `addr` | 服务监听地址，默认 `:8080` |
+| `addr` | 服务监听地址，默认 `:9001` |
 | `data_dir` | 数据目录根路径，历史与配置写入其下 `data/` |
 | `providers` | 多供应商：`"供应商名": { "api_key", "base_url", "models": ["模型id"] }`，请求时按模型 ID 自动选供应商 |
 | `project_path` | 路由前缀（项目名），如 `translate-agent`；空则 API/页面在根路径。可用环境变量 `PROJECT_PATH` 覆盖 |

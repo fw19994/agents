@@ -47,7 +47,7 @@ func Load() (C, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		// 无配置文件时返回默认值，API Key 为空
-		return C{Addr: ":8080", DataDir: ".", LLMBaseURL: "https://api.openai.com/v1"}, nil
+		return C{Addr: ":9001", DataDir: ".", LLMBaseURL: "https://api.openai.com/v1"}, nil
 	}
 
 	var f configFile
@@ -64,7 +64,7 @@ func Load() (C, error) {
 	}
 
 	if c.Addr == "" {
-		c.Addr = ":8080"
+		c.Addr = ":9001"
 	}
 	if c.DataDir == "" {
 		c.DataDir = "."

@@ -3,7 +3,7 @@
     "project_path": "translate-agent",
     "openai_api_key": "sk-xxx",
     "llm_base_url": "https://api.openai.com/v1",
-    "addr": ":8080",
+    "addr": ":9001",
     "data_dir": ".",
     "providers": {
       "openai": {
@@ -27,7 +27,7 @@
     "project_path": "translate-agent",
     "openai_api_key": "",
     "llm_base_url": "https://api.openai.com/v1",
-    "addr": ":8080",
+    "addr": ":9001",
     "data_dir": ".",
     "providers": {
       "openai": {

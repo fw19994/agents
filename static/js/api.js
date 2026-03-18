@@ -1,8 +1,8 @@
 /**
  * 与 Go 后端的 API 封装（流式对话、设置、会话等）
  */
-// file:// 打开时：api-base 填服务根，如 http://127.0.0.1:8080；app-base 填 project_path，如 /translate-agent
-// 或一条 api-root：http://127.0.0.1:8080/translate-agent
+// file:// 打开时：api-base 填服务根，如 http://127.0.0.1:9001；app-base 填 project_path，如 /translate-agent
+// 或一条 api-root：http://127.0.0.1:9001/translate-agent
 (function () {
   if (window.API_BASE != null) return;
   var meta = document.querySelector('meta[name="api-base"]');
@@ -11,7 +11,7 @@
     return;
   }
   if (window.location.protocol === 'file:') {
-    window.API_BASE = 'http://127.0.0.1:8080';
+    window.API_BASE = 'http://127.0.0.1:9001';
   } else {
     window.API_BASE = '';
   }

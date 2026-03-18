@@ -50,7 +50,7 @@ func Listen(addr string, r *gin.Engine) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		if strings.Contains(err.Error(), "address already in use") || strings.Contains(err.Error(), "bind") {
-			log.Printf("[ERROR] 端口 %s 已被占用。请修改 config/config.json 中的 addr（如 :8081）或设置环境变量 ADDR=:8081，也可关闭占用该端口的进程。", addr)
+			log.Printf("[ERROR] 端口 %s 已被占用。请修改 config/config.json 中的 addr（如 :9002）或设置环境变量 ADDR=:9002，也可关闭占用该端口的进程。", addr)
 		}
 		return err
 	}
