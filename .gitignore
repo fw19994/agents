@@ -1,5 +1,4 @@
 # 配置文件（含 API Key），请复制 config.example.json 为 config.json 后填写
-config/config.json
 # 本地数据
 data/
 # 构建产物

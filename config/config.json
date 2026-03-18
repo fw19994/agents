@@ -1,0 +1,41 @@
+{
+  "dev": {
+    "project_path": "translate-agent",
+    "openai_api_key": "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",
+    "llm_base_url": "https://openrouter.ai/api/v1",
+    "addr": ":9001",
+    "data_dir": ".",
+    "providers": {
+      "openai": {
+        "api_key": "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",
+        "base_url": "https://openrouter.ai/api/v1",
+        "models": ["openai/gpt-4o-mini", "openai/gpt-4o","google/gemini-2.5-flash"]
+      },
+      "qwen": {
+        "api_key": "sk-024c49fd09ab45258f80a6b76ac08217",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "models": ["qwen-plus", "qwen-turbo"]
+      }
+
+    }
+  },
+  "prod": {
+    "project_path": "translate-agent",
+    "openai_api_key": "",
+    "llm_base_url": "https://api.openai.com/v1",
+    "addr": ":9001",
+    "data_dir": ".",
+    "providers": {
+      "openai": {
+        "api_key": "",
+        "base_url": "https://api.openai.com/v1",
+        "models": ["gpt-4o-mini", "gpt-4o"]
+      },
+      "qwen": {
+        "api_key": "",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "models": ["qwen-plus", "qwen-turbo"]
+      }
+    }
+  }
+}
